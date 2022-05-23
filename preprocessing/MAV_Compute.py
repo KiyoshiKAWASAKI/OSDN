@@ -49,44 +49,50 @@
 # link to download latest version of LibMR code is: http://www.metarecognition.com/libmr-license/ #
 ###################################################################################################
 
-
-
-import os, sys
+import sys
 import glob
 import time
 import scipy as sp
+import numpy as np
 from scipy.io import loadmat, savemat
-import pickle
-import os.path as path
-import multiprocessing as mp
 
 
-featurefilepath = '../data/train_features/'
+nb_class = 293
+
+model_dir = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/models/msd_net/2022-02-13/" \
+             "known_only_cross_entropy/seed_0/"
+
+train_feature_file_path = model_dir + "openmax_feature/train_features"
+train_mean_file_save_path = model_dir + "openmax_feature/mean_files_train"
+
+valid_feature_file_path = model_dir + "openmax_feature/valid_features"
+valid_mean_file_save_path = model_dir + "openmax_feature/mean_files_valid"
+
+test_known_feature_file_path = model_dir + "openmax_feature/test_known_features"
+test_known_mean_file_save_path = model_dir + "openmax_feature/mean_files_test_known"
+
 
 def getlabellist(fname):
-
     imagenetlabels = open(fname, 'r').readlines()
     labellist  = [i.split(' ')[0] for i in imagenetlabels]        
     return labellist
 
-def compute_mean_vector(category_name, labellist, layer = 'fc8'):
-    print category_name
-    featurefile_list = glob.glob('%s/%s/*.mat' %(featurefilepath, category_name))
-    
-    # gather all the training samples for which predicted category
-    # was the category under consideration
-    correct_features = []
-    for featurefile in featurefile_list:
-        try:
-            img_arr = loadmat(featurefile)
-            predicted_category = labellist[img_arr['scores'].argmax()]
-            if predicted_category == category_name:
-                correct_features += [img_arr[layer]]
-        except TypeError:
-            continue
-    
-    # Now compute channel wise mean vector
+
+
+
+def compute_channel_mav(correct_features,
+                        class_index,
+                        category,
+                        mean_file_save_path):
+    """
+
+    :param correct_features:
+    :param category_name:
+    :param mean_file_save_path:
+    :return:
+    """
     channel_mean_vec = []
+
     for channelid in range(correct_features[0].shape[0]):
         channel = []
         for feature in correct_features:
@@ -99,23 +105,99 @@ def compute_mean_vector(category_name, labellist, layer = 'fc8'):
     # this vector contains mean computed over correct classifications
     # for each channel separately
     channel_mean_vec = sp.asarray(channel_mean_vec)
-    savemat('%s.mat' %category_name, {'%s'%category_name: channel_mean_vec})
 
-def multiproc_compute_mean_vector(params):
-    return compute_mean_vector(*params)
+    save_path_full = mean_file_save_path + "/" + category + '/%s.mat' % (class_index)
+    print("Saving mean activate vector to: ", save_path_full)
+    savemat(save_path_full, {class_index: channel_mean_vec})
 
-def main():
 
-    if len(sys.argv[1:]) != 1:
-        print "usage: python MAV_Compute.py <synset_id (e.g. n01440764)>"
-    else:
-        category_name = sys.argv[1]
-        st = time.time()
-        labellist = getlabellist('../synset_words_caffe_ILSVRC12.txt')
-        mean_vector_dict = {}
-        compute_mean_vector(category_name, labellist)
-        print "Total time %s secs" %(time.time() - st)    
- 
+
+
+def compute_mean_vector(category_name,
+                        feature_path,
+                        save_path,
+                        layer = 'fc8'):
+    print("Processing: ", category_name)
+
+    featurefile_list = glob.glob('%s/%s/*.mat' % (feature_path, category_name))
+    
+    # gather all the training samples for which predicted category
+    # was the category under consideration
+    correct_features_top1 = []
+    correct_features_top3 = []
+    correct_features_top5 = []
+
+    for featurefile in featurefile_list:
+        try:
+            img_arr = loadmat(featurefile)
+            label = int(category_name)
+
+            top_1 = img_arr['scores'].argmax()
+            top_3 = np.argpartition(img_arr['scores'], -3)[-3:]
+            top_5 = np.argpartition(img_arr['scores'], -5)[-5:]
+
+            if top_1 == label:
+                correct_features_top1 += [img_arr[layer]]
+
+            if label in top_3:
+                correct_features_top3 += [img_arr[layer]]
+
+            if label in top_5:
+                correct_features_top5 += [img_arr[layer]]
+
+        except TypeError:
+            continue
+
+    # Now compute channel wise mean vector
+    try:
+        compute_channel_mav(correct_features=correct_features_top1,
+                            class_index=category_name,
+                            category="top_1",
+                            mean_file_save_path=save_path)
+    except:
+        print("no correct top 1 predictions")
+        pass
+
+    try:
+        compute_channel_mav(correct_features=correct_features_top3,
+                            class_index=category_name,
+                            category="top_3",
+                            mean_file_save_path=save_path)
+    except:
+        print("no correct top 3 predictions")
+        pass
+
+    try:
+        compute_channel_mav(correct_features=correct_features_top5,
+                            class_index=category_name,
+                            category="top_5",
+                            mean_file_save_path=save_path)
+    except:
+        print("no correct top5 predictions")
+        pass
+
 
 if __name__ == "__main__":
-    main()
+    # print("*" * 50)
+    # for i in range(nb_class):
+    #     st = time.time()
+    #     compute_mean_vector(category_name=str(i).zfill(4),
+    #                         feature_path=train_feature_file_path,
+    #                         save_path=train_mean_file_save_path)
+    #     print ("Total time %s secs" % (time.time() - st))
+
+    # print("*" * 50)
+    # for i in range(nb_class):
+    #     st = time.time()
+    #     compute_mean_vector(category_name=str(i).zfill(4),
+    #                         feature_path=valid_feature_file_path,
+    #                         save_path=valid_mean_file_save_path)
+    #     print ("Total time %s secs" % (time.time() - st))
+
+    print("*" * 50)
+    for i in range(nb_class):
+        st = time.time()
+        compute_mean_vector(category_name=str(i).zfill(4),
+                            feature_path=test_known_feature_file_path,
+                            save_path=test_known_mean_file_save_path)
+        print ("Total time %s secs" % (time.time() - st))

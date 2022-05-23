@@ -2,9 +2,9 @@ import scipy as sp
 import sys, os
 try:
     import libmr
-    print "Imported libmr succesfully"
+    print ("Imported libmr succesfully")
 except ImportError:
-    print "Cannot import libmr"
+    print ("Cannot import libmr")
     sys.exit()
 
 import pickle
@@ -21,16 +21,16 @@ def main():
     mr = libmr.MR()
     datasize = len(svm_data["scores"])
     mr.fit_svm(svm_data, datasize, 1, 1, 1, 10)
-    print fit_data
-    print mr.w_score_vector(fit_data)
-    mr.mr_save("meta_rec.model")
-    datadump = {}
-    datadump = {"data": fit_data}
+    print (fit_data)
+    print (mr.w_score_vector(fit_data))
+    # mr.mr_save("meta_rec.model")
+    # datadump = {}
+    # datadump = {"data": fit_data}
 
-    f = open("data.dump", "w")
-    pickle.dump(datadump, f)
-    f.close()
-    print dir(mr)
+    # f = open("data.dump", "w")
+    # pickle.dump(datadump, f)
+    # f.close()
+    # print (dir(mr))
 
 
 if __name__ == "__main__":

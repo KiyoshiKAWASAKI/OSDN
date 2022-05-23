@@ -134,6 +134,7 @@ cdef class MR:
         save mr object to file
         """
         cdef char *filetosave
+        # cdef str *filetosave
         filetosave = filename
         self.thisptr.Save(filetosave)
 
@@ -172,8 +173,8 @@ cdef class MR:
 
         svm_data_to_c =  < svm_node_libsvm* >malloc(inputDataSize * sizeof(svm_node_libsvm) )
 
-        assert svm_data.has_key("scores")
-        assert svm_data.has_key("scores")
+        assert "scores" in svm_data
+        # assert svm_data.has_key("scores")
         assert len(svm_data["scores"]) == len(svm_data["labels"])
         assert fit_type in [1, 2, 3, 4]
         for i in range(inputDataSize):
