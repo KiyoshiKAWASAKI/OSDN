@@ -178,21 +178,21 @@ def compute_mean_vector(category_name,
 
 
 if __name__ == "__main__":
-    # print("*" * 50)
-    # for i in range(nb_class):
-    #     st = time.time()
-    #     compute_mean_vector(category_name=str(i).zfill(4),
-    #                         feature_path=train_feature_file_path,
-    #                         save_path=train_mean_file_save_path)
-    #     print ("Total time %s secs" % (time.time() - st))
+    print("*" * 50)
+    for i in range(nb_class):
+        st = time.time()
+        compute_mean_vector(category_name=str(i).zfill(4),
+                            feature_path=train_feature_file_path,
+                            save_path=train_mean_file_save_path)
+        print ("Total time %s secs" % (time.time() - st))
 
-    # print("*" * 50)
-    # for i in range(nb_class):
-    #     st = time.time()
-    #     compute_mean_vector(category_name=str(i).zfill(4),
-    #                         feature_path=valid_feature_file_path,
-    #                         save_path=valid_mean_file_save_path)
-    #     print ("Total time %s secs" % (time.time() - st))
+    print("*" * 50)
+    for i in range(nb_class):
+        st = time.time()
+        compute_mean_vector(category_name=str(i).zfill(4),
+                            feature_path=valid_feature_file_path,
+                            save_path=valid_mean_file_save_path)
+        print ("Total time %s secs" % (time.time() - st))
 
     print("*" * 50)
     for i in range(nb_class):

@@ -50,25 +50,33 @@
 
 
 import scipy as sp
+import numpy as np
 import sys
 import os, glob
-import os.path as path
 import scipy.spatial.distance as spd
 from scipy.io import loadmat, savemat
 
-featurefilepath = '../data/train_features/'
+nb_class = 293
 
-#------------------------------------------------------------------------------------------
-def getlabellist(fname):
-    """ Read synset file for ILSVRC 2012
-    """
+model_dir = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/" \
+            "models/msd_net/2022-02-13/known_only_cross_entropy/seed_0/"
 
-    imagenetlabels = open(fname, 'r').readlines()
-    labellist  = [i.split(' ')[0] for i in imagenetlabels]        
-    return labellist
+train_feature_file_path = model_dir + "openmax_feature/train_features"
+train_mean_file_save_path = model_dir + "openmax_feature/mean_files_train"
+train_distance_save_path = model_dir + "openmax_feature/mean_distance_files_train"
 
-#------------------------------------------------------------------------------------------
-def compute_channel_distances(mean_train_channel_vector, features, category_name):
+valid_feature_file_path = model_dir + "openmax_feature/valid_features"
+valid_mean_file_save_path = model_dir + "openmax_feature/mean_files_valid"
+valid_distance_save_path = model_dir + "openmax_feature/mean_distance_files_valid"
+
+test_known_feature_file_path = model_dir + "openmax_feature/test_known_features"
+test_known_mean_file_save_path = model_dir + "openmax_feature/mean_files_test_known"
+test_known_distance_save_path = model_dir + "openmax_feature/mean_distance_files_test_known"
+
+
+
+
+def compute_channel_distances(mean_train_channel_vector, features):
     """
     Input:
     ---------
@@ -84,17 +92,19 @@ def compute_channel_distances(mean_train_channel_vector, features, category_name
     """
 
     eucos_dist, eu_dist, cos_dist = [], [], []
-    for channel in range(features[0].shape[0]):
-        eu_channel, cos_channel, eu_cos_channel = [], [], []
-        # compute channel specific distances
-        for feat in features:
-            eu_channel += [spd.euclidean(mean_train_channel_vector[channel, :], feat[channel, :])]
-            cos_channel += [spd.cosine(mean_train_channel_vector[channel, :], feat[channel, :])]
-            eu_cos_channel += [spd.euclidean(mean_train_channel_vector[channel, :], feat[channel, :])/200. +
-                               spd.cosine(mean_train_channel_vector[channel, :], feat[channel, :])]
-        eu_dist += [eu_channel]
-        cos_dist += [cos_channel]
-        eucos_dist += [eu_cos_channel]
+
+    # for channel in range(features[0].shape[0]):
+    eu_channel, cos_channel, eu_cos_channel = [], [], []
+    # compute channel specific distances
+    for feat in features:
+        eu_channel += [spd.euclidean(mean_train_channel_vector, feat)]
+        cos_channel += [spd.cosine(mean_train_channel_vector, feat)]
+        eu_cos_channel += [spd.euclidean(mean_train_channel_vector, feat)/200. +
+                           spd.cosine(mean_train_channel_vector, feat)]
+
+    eu_dist += [eu_channel]
+    cos_dist += [cos_channel]
+    eucos_dist += [eu_cos_channel]
 
     # convert all arrays as scipy arrays
     eucos_dist = sp.asarray(eucos_dist)
@@ -102,9 +112,9 @@ def compute_channel_distances(mean_train_channel_vector, features, category_name
     cos_dist = sp.asarray(cos_dist)
 
     # assertions for length check
-    assert eucos_dist.shape[0] == 10
-    assert eu_dist.shape[0] == 10
-    assert cos_dist.shape[0] == 10
+    assert eucos_dist.shape[0] == 1
+    assert eu_dist.shape[0] == 1
+    assert cos_dist.shape[0] == 1
     assert eucos_dist.shape[1] == len(features)
     assert eu_dist.shape[1] == len(features)
     assert cos_dist.shape[1] == len(features)
@@ -112,9 +122,14 @@ def compute_channel_distances(mean_train_channel_vector, features, category_name
     channel_distances = {'eucos': eucos_dist, 'cosine': cos_dist, 'euclidean':eu_dist}
     return channel_distances
     
-#------------------------------------------------------------------------------------------
-def compute_distances(mav_fname, labellist, category_name, 
-                      featurefilepath, layer = 'fc8'):
+
+
+
+def compute_distances(mav_fname,
+                      category_name,
+                      featurefilepath,
+                      distance_save_path,
+                      layer = 'fc8'):
     """
     Input:
     -------
@@ -123,39 +138,74 @@ def compute_distances(mav_fname, labellist, category_name,
     category_name : synset_id
 
     """
-    
-    
-    mean_feature_vec = loadmat(mav_fname)[category_name]
-    print '%s/%s/*.mat' %(featurefilepath, category_name)
-    featurefile_list = glob.glob('%s/*.mat' %featurefilepath)
+    print("Processing class: ", category_name)
 
-    correct_features = []
+    featurefile_list = glob.glob('%s/%s/*.mat' % (featurefilepath, category_name))
+
+    correct_features_top1 = []
+    correct_features_top3 = []
+    correct_features_top5 = []
+
+    """
+    Note: The correct feature could be empty
+    """
     for featurefile in featurefile_list:
-        try:
-            img_arr = loadmat(featurefile)
-            predicted_category = labellist[img_arr['scores'].argmax()]
-            if predicted_category == category_name:
-                correct_features += [img_arr[layer]]
-        except TypeError:
-            continue
+        img_arr = loadmat(featurefile)
+        label = int(category_name)
 
-    distance_distribution = compute_channel_distances(mean_feature_vec, correct_features, category_name)
-    return distance_distribution
+        top_1 = img_arr['scores'].argmax()
+        top_3 = np.argpartition(img_arr['scores'], -3)[-3:]
+        top_5 = np.argpartition(img_arr['scores'], -5)[-5:]
 
-#------------------------------------------------------------------------------------------
-def main():
+        if top_1 == label:
+            correct_features_top1 += [img_arr[layer]]
 
-    if len(sys.argv[1:]) != 3:
-        print "usage: python compute_distances.py <synset id> <mav_file> <feature_path> \n(e.g.)"
-        print "python compute_distances.py n01440764 ../data/mean_files/n01440764.mat ../data/train_features/n01440764/"
-    else:
-        category_name = sys.argv[1]
-        mav_fname = sys.argv[2]
-        feature_path = sys.argv[3]
-        labellist = getlabellist('../synset_words_caffe_ILSVRC12.txt')
+        if label in top_3:
+            correct_features_top3 += [img_arr[layer]]
 
-        distance_distribution = compute_distances(mav_fname, labellist, category_name, feature_path)
-        savemat('%s_distances.mat'%category_name, distance_distribution)
+        if label in top_5:
+            correct_features_top5 += [img_arr[layer]]
+
+    if len(correct_features_top1) != 0:
+        print("top1")
+        mean_feature_vec_top_1 = loadmat(mav_fname + "/top_1/" + category_name + ".mat")[category_name]
+        distance_top_1 = compute_channel_distances(mean_feature_vec_top_1,
+                                                   correct_features_top1)
+        savemat(distance_save_path + "/top_1/" + category_name + ".mat", distance_top_1)
+
+    if len(correct_features_top3) != 0:
+        print("top3")
+        mean_feature_vec_top_3 = loadmat(mav_fname + "/top_3/" + category_name + ".mat")[category_name]
+        distance_top_3 = compute_channel_distances(mean_feature_vec_top_3,
+                                                    correct_features_top3)
+        savemat(distance_save_path + "/top_3/" + category_name + ".mat", distance_top_3)
+
+    if len(correct_features_top5) != 0:
+        print("top5")
+        mean_feature_vec_top_5 = loadmat(mav_fname + "/top_5/" + category_name + ".mat")[category_name]
+        distance_top_5 = compute_channel_distances(mean_feature_vec_top_5,
+                                                    correct_features_top5)
+        savemat(distance_save_path + "/top_5/" + category_name + ".mat", distance_top_5)
+
+
+
+
 
 if __name__ == "__main__":
-    main()
+    for i in range(nb_class):
+        compute_distances(mav_fname=train_mean_file_save_path,
+                          category_name=str(i).zfill(4),
+                          featurefilepath=train_feature_file_path,
+                          distance_save_path=train_distance_save_path)
+
+    for i in range(nb_class):
+        compute_distances(mav_fname=valid_mean_file_save_path,
+                          category_name=str(i).zfill(4),
+                          featurefilepath=valid_feature_file_path,
+                          distance_save_path=valid_distance_save_path)
+
+    for i in range(nb_class):
+        compute_distances(mav_fname=test_known_mean_file_save_path,
+                          category_name=str(i).zfill(4),
+                          featurefilepath=test_known_feature_file_path,
+                          distance_save_path=test_known_distance_save_path)

@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="51ea4fe7-eae2-40d1-956f-f1260aaf1918" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/compute_openmax_updated.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libMR/libmr.pyx" beforeDir="false" afterPath="$PROJECT_DIR$/libMR/libmr.pyx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libMR/test_libmr.py" beforeDir="false" afterPath="$PROJECT_DIR$/libMR/test_libmr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/preprocessing/MAV_Compute.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocessing/MAV_Compute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/preprocessing/compute_distances.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocessing/compute_distances.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,7 +12,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.22277501">
+    <splitter split-orientation="horizontal" split-proportion="0.18131565">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
@@ -30,20 +27,14 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/compute_openmax.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="2536">
-                  <caret line="165" column="41" selection-start-line="165" selection-start-column="41" selection-end-line="165" selection-end-column="41" />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/libMR/libmr.pyx">
+            <entry file="file://$PROJECT_DIR$/preprocessing/MAV_Compute.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="237">
-                  <caret line="137" column="29" lean-forward="true" selection-start-line="137" selection-start-column="29" selection-end-line="137" selection-end-column="29" />
+                <state relative-caret-position="820">
+                  <caret line="121" column="33" lean-forward="true" selection-start-line="121" selection-start-column="33" selection-end-line="121" selection-end-column="78" />
+                  <folding>
+                    <element signature="e#4826#4836#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -55,7 +46,7 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/compute_openmax_updated.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="311">
+                <state relative-caret-position="831">
                   <caret line="229" column="20" lean-forward="true" selection-start-line="229" selection-start-column="20" selection-end-line="229" selection-end-column="20" />
                   <folding>
                     <element signature="e#4905#4933#0" expanded="true" />
@@ -65,12 +56,12 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/preprocessing/MAV_Compute.py">
+            <entry file="file://$PROJECT_DIR$/preprocessing/compute_distances.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="479">
-                  <caret line="71" column="83" selection-start-line="71" selection-start-column="83" selection-end-line="71" selection-end-column="83" />
+                <state relative-caret-position="754">
+                  <caret line="211" lean-forward="true" selection-start-line="211" selection-end-line="211" />
                   <folding>
-                    <element signature="e#4826#4836#0" expanded="true" />
+                    <element signature="e#4826#4844#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -83,6 +74,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>print</find>
+      <find>distance</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -96,6 +88,7 @@
         <option value="$PROJECT_DIR$/libMR/test_libmr.py" />
         <option value="$PROJECT_DIR$/compute_openmax_updated.py" />
         <option value="$PROJECT_DIR$/preprocessing/MAV_Compute.py" />
+        <option value="$PROJECT_DIR$/preprocessing/compute_distances.py" />
       </list>
     </option>
   </component>
@@ -145,6 +138,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
@@ -188,12 +182,12 @@
       <workItem from="1652116793234" duration="1057000" />
       <workItem from="1652120625419" duration="92000" />
       <workItem from="1652120722530" duration="6239000" />
-      <workItem from="1653075941171" duration="6712000" />
+      <workItem from="1653075941171" duration="13561000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15153000" />
+    <option name="totallyTimeSpent" value="22002000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="46" width="1920" height="1080" extended-state="0" />
@@ -213,7 +207,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.02970297" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="bottom" id="File Transfer" order="13" visible="true" weight="0.06435644" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -243,25 +237,6 @@
         <state relative-caret-position="-1862" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/preprocessing/compute_distances.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3075">
-          <folding>
-            <element signature="e#4826#4844#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/libMR/test_libmr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="549">
-          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/argparse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-105">
@@ -269,9 +244,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/libMR/libmr.pyx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="137" column="29" lean-forward="true" selection-start-line="137" selection-start-column="29" selection-end-line="137" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/compute_openmax_updated.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
+        <state relative-caret-position="831">
           <caret line="229" column="20" lean-forward="true" selection-start-line="229" selection-start-column="20" selection-end-line="229" selection-end-column="20" />
           <folding>
             <element signature="e#4905#4933#0" expanded="true" />
@@ -286,19 +268,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/libMR/libmr.pyx">
+    <entry file="file://$PROJECT_DIR$/libMR/test_libmr.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="137" column="29" lean-forward="true" selection-start-line="137" selection-start-column="29" selection-end-line="137" selection-end-column="29" />
+        <state relative-caret-position="549">
+          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/preprocessing/MAV_Compute.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="71" column="83" selection-start-line="71" selection-start-column="83" selection-end-line="71" selection-end-column="83" />
+        <state relative-caret-position="820">
+          <caret line="121" column="33" lean-forward="true" selection-start-line="121" selection-start-column="33" selection-end-line="121" selection-end-column="78" />
           <folding>
             <element signature="e#4826#4836#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/preprocessing/compute_distances.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="754">
+          <caret line="211" lean-forward="true" selection-start-line="211" selection-end-line="211" />
+          <folding>
+            <element signature="e#4826#4844#0" expanded="true" />
           </folding>
         </state>
       </provider>
