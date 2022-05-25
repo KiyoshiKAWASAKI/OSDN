@@ -100,14 +100,17 @@ def compute_distance(query_channel, channel, mean_vec, distance_type = 'eucos'):
     query_distance : Distance between respective channels
 
     """
+    try:
+        if distance_type == 'eucos':
+            query_distance = spd.euclidean(mean_vec[channel, :], query_channel)/200. + spd.cosine(mean_vec[channel, :], query_channel)
+        elif distance_type == 'euclidean':
+            query_distance = spd.euclidean(mean_vec[channel, :], query_channel)/200.
+        elif distance_type == 'cosine':
+            query_distance = spd.cosine(mean_vec[channel, :], query_channel)
+        else:
+            print ("distance type not known: enter either of eucos, euclidean or cosine")
+        return query_distance
 
-    if distance_type == 'eucos':
-        query_distance = spd.euclidean(mean_vec[channel, :], query_channel)/200. + spd.cosine(mean_vec[channel, :], query_channel)
-    elif distance_type == 'euclidean':
-        query_distance = spd.euclidean(mean_vec[channel, :], query_channel)/200.
-    elif distance_type == 'cosine':
-        query_distance = spd.cosine(mean_vec[channel, :], query_channel)
-    else:
-        print "distance type not known: enter either of eucos, euclidean or cosine"
-    return query_distance
+    except Exception as e:
+        print("from compute_distance", e)
     
