@@ -67,21 +67,35 @@ from libMR import libmr
 
 # ---------------------------------------------------------------------------------
 # params and configurations
-NCLASSES = 293
+
+# model_seed = 0
+# NB_FINAL_CLASSES = 277
+
+model_seed = 1
 NB_FINAL_CLASSES = 277
 
+WEIBULL_TAIL_SIZE = 20
+
+NCLASSES = 293
 NCHANNELS = 1
 ALPHA_RANK = 10
-WEIBULL_TAIL_SIZE = 20
+
 
 # TODO: These are for one img only now
 base_path = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/models/msd_net/" \
-                "2022-02-13/known_only_cross_entropy/seed_0/openmax_feature"
+            "2022-02-13/known_only_cross_entropy/seed_" + str(model_seed) + "/openmax_feature"
 distance_path = os.path.join(base_path, "mean_distance_files_train/top_1")
 mean_path = os.path.join(base_path, "mean_files_train/top_1")
-image_arrname = os.path.join(base_path, "train_features/0000/00000.mat")
 
+train_img_base_dir = os.path.join(base_path, "train_features")
+valid_img_base_dir = os.path.join(base_path, "valid_features")
+test_known_img_base_dir = os.path.join(base_path, "test_known_features")
+test_unknown_img_base_dir = os.path.join(base_path, "test_unknown_features")
 
+train_result_save_path = os.path.join(base_path, "train_results_tail_size_" + str(WEIBULL_TAIL_SIZE) + ".npy")
+valid_result_save_path = os.path.join(base_path, "valid_results_tail_size_" + str(WEIBULL_TAIL_SIZE) + ".npy")
+test_known_result_save_path = os.path.join(base_path, "test_known_results_tail_size_" + str(WEIBULL_TAIL_SIZE) + ".npy")
+test_unknown_result_save_path = os.path.join(base_path, "test_unknown_results_tail_size_" + str(WEIBULL_TAIL_SIZE) + ".npy")
 
 # ---------------------------------------------------------------------------------
 def computeOpenMaxProbability(openmax_fc8, openmax_score_u):
@@ -202,22 +216,92 @@ def recalibrate_scores(weibull_model,
 
 
 if __name__ == "__main__":
-    # TODO: Fit weibull with 277 classes (those who have correct training predictions)
-    weibull_model, label_mapping = weibull_tailfitting(mean_path,
-                                                        distance_path,
-                                                        list(range(NCLASSES)),
-                                                        tailsize=WEIBULL_TAIL_SIZE)
+    # Fit weibull with 277 classes (those who have correct training predictions)
+    weibull_model, label_mapping, missing_classes = weibull_tailfitting(mean_path,
+                                                                        distance_path,
+                                                                        list(range(NCLASSES)),
+                                                                        tailsize=WEIBULL_TAIL_SIZE)
     print ("Completed Weibull fitting on %s models" % len(weibull_model.keys()))
+    print ("Missing %s classes in Weibull" % len(missing_classes))
 
-    # TODO: Computer both openmax and softmax
-    imgarr = loadmat(image_arrname)
-    openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
-                                          label_dict=label_mapping,
-                                          imgarr=imgarr)
-    # print ("Image ArrName: %s" % image_arrname)
-    # print ("Softmax Scores ", softmax)
-    # print ("Openmax Scores ", openmax)
-    print(openmax.shape, softmax.shape)
-    print("label: ", image_arrname.split("/")[-2])
-    print("open max prediction: ",  np.argmax(openmax))
-    print("soft max prediction:", np.argmax(softmax))
+    # Compute both openmax and softmax
+    # TODO: Training
+    train_data_result = []
+
+    for i in range(NCLASSES):
+        if i not in missing_classes:
+            all_imgs = os.listdir(os.path.join(train_img_base_dir, str(i).zfill(4)))
+
+            for one_img in all_imgs:
+                one_img_path = os.path.join(os.path.join(train_img_base_dir, str(i).zfill(4)), one_img)
+                imgarr = loadmat(one_img_path)
+                print(one_img_path)
+
+                openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
+                                                      label_dict=label_mapping,
+                                                      imgarr=imgarr)
+
+                train_data_result.append([i, np.argmax(softmax), np.argmax(openmax)])
+
+    np.save(train_result_save_path, train_data_result)
+
+
+    # TODO: Validation
+    valid_data_result = []
+
+    for i in range(NCLASSES):
+        if i not in missing_classes:
+            all_imgs = os.listdir(os.path.join(valid_img_base_dir, str(i).zfill(4)))
+
+            for one_img in all_imgs:
+                one_img_path = os.path.join(os.path.join(valid_img_base_dir, str(i).zfill(4)), one_img)
+                imgarr = loadmat(one_img_path)
+                print(one_img_path)
+
+                openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
+                                                      label_dict=label_mapping,
+                                                      imgarr=imgarr)
+
+                valid_data_result.append([i, np.argmax(softmax), np.argmax(openmax)])
+
+    np.save(valid_result_save_path, valid_data_result)
+
+
+    # TODO: Test known
+    test_known_data_result = []
+
+    for i in range(NCLASSES):
+        if i not in missing_classes:
+            all_imgs = os.listdir(os.path.join(test_known_img_base_dir, str(i).zfill(4)))
+
+            for one_img in all_imgs:
+                one_img_path = os.path.join(os.path.join(test_known_img_base_dir, str(i).zfill(4)), one_img)
+                imgarr = loadmat(one_img_path)
+                print(one_img_path)
+
+                openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
+                                                      label_dict=label_mapping,
+                                                      imgarr=imgarr)
+
+                test_known_data_result.append([i, np.argmax(softmax), np.argmax(openmax)])
+
+    np.save(test_known_result_save_path, test_known_data_result)
+
+
+    # TODO: Test unknown
+    test_unknown_data_result = []
+
+    all_imgs = os.listdir(os.path.join(test_known_img_base_dir, str(NCLASSES+1).zfill(4)))
+
+    for one_img in all_imgs:
+        one_img_path = os.path.join(os.path.join(test_unknown_img_base_dir, str(NCLASSES+1).zfill(4)), one_img)
+        imgarr = loadmat(one_img_path)
+
+        openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
+                                              label_dict=label_mapping,
+                                              imgarr=imgarr)
+
+        test_unknown_data_result.append([NCLASSES+1, np.argmax(softmax), np.argmax(openmax)])
+
+    np.save(test_unknown_result_save_path, test_unknown_data_result)
+

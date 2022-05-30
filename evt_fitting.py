@@ -91,6 +91,7 @@ def weibull_tailfitting(meanfiles_path, distancefiles_path, labellist,
     weibull_model = {}
     label_mapping = {}
     current_key = 0
+    missing_classes = []
 
     # for each category, read meanfile, distance file, and perform weibull fitting
     for i in range(len(labellist)):
@@ -116,9 +117,9 @@ def weibull_tailfitting(meanfiles_path, distancefiles_path, labellist,
             current_key += 1
 
         except:
-             pass
+             missing_classes.append(i)
 
-    return weibull_model, label_mapping
+    return weibull_model, label_mapping, missing_classes
 
 #---------------------------------------------------------------------------------
 def query_weibull(original_category,
