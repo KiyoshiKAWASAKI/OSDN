@@ -5,7 +5,7 @@
 #$ -q long
 #$ -l h=!qa-rtx6k-044
 #$ -e errors/
-#$ -N openmax_s0_tail_1000
+#$ -N openmax_s0_tail_20
 
 # Required modules
 module load conda

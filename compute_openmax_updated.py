@@ -71,7 +71,7 @@ from libMR import libmr
 # model_seed = 0
 # NB_FINAL_CLASSES = 277
 
-model_seed = 1
+model_seed = 0
 NB_FINAL_CLASSES = 277
 
 WEIBULL_TAIL_SIZE = 20
@@ -229,13 +229,12 @@ if __name__ == "__main__":
     train_data_result = []
 
     for i in range(NCLASSES):
-        if i not in missing_classes:
+        if os.path.exists(os.path.join(train_img_base_dir, str(i).zfill(4))):
             all_imgs = os.listdir(os.path.join(train_img_base_dir, str(i).zfill(4)))
 
             for one_img in all_imgs:
                 one_img_path = os.path.join(os.path.join(train_img_base_dir, str(i).zfill(4)), one_img)
                 imgarr = loadmat(one_img_path)
-                print(one_img_path)
 
                 openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
                                                       label_dict=label_mapping,
@@ -250,13 +249,13 @@ if __name__ == "__main__":
     valid_data_result = []
 
     for i in range(NCLASSES):
-        if i not in missing_classes:
+
+        if os.path.exists(os.path.join(valid_img_base_dir, str(i).zfill(4))):
             all_imgs = os.listdir(os.path.join(valid_img_base_dir, str(i).zfill(4)))
 
             for one_img in all_imgs:
                 one_img_path = os.path.join(os.path.join(valid_img_base_dir, str(i).zfill(4)), one_img)
                 imgarr = loadmat(one_img_path)
-                print(one_img_path)
 
                 openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
                                                       label_dict=label_mapping,
@@ -271,13 +270,12 @@ if __name__ == "__main__":
     test_known_data_result = []
 
     for i in range(NCLASSES):
-        if i not in missing_classes:
+        if os.path.exists(os.path.join(test_known_img_base_dir, str(i).zfill(4))):
             all_imgs = os.listdir(os.path.join(test_known_img_base_dir, str(i).zfill(4)))
 
             for one_img in all_imgs:
                 one_img_path = os.path.join(os.path.join(test_known_img_base_dir, str(i).zfill(4)), one_img)
                 imgarr = loadmat(one_img_path)
-                print(one_img_path)
 
                 openmax, softmax = recalibrate_scores(weibull_model=weibull_model,
                                                       label_dict=label_mapping,
@@ -291,7 +289,7 @@ if __name__ == "__main__":
     # TODO: Test unknown
     test_unknown_data_result = []
 
-    all_imgs = os.listdir(os.path.join(test_known_img_base_dir, str(NCLASSES+1).zfill(4)))
+    all_imgs = os.listdir(os.path.join(test_unknown_img_base_dir, str(NCLASSES+1).zfill(4)))
 
     for one_img in all_imgs:
         one_img_path = os.path.join(os.path.join(test_unknown_img_base_dir, str(NCLASSES+1).zfill(4)), one_img)

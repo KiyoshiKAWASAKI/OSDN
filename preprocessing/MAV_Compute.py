@@ -60,7 +60,7 @@ from scipy.io import loadmat, savemat
 nb_class = 293
 
 model_dir = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/models/msd_net/2022-02-13/" \
-             "known_only_cross_entropy/seed_0/"
+             "known_only_cross_entropy/seed_4/"
 
 train_feature_file_path = model_dir + "openmax_feature/train_features"
 train_mean_file_save_path = model_dir + "openmax_feature/mean_files_train"
