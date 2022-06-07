@@ -69,8 +69,8 @@ from libMR import libmr
 # ---------------------------------------------------------------------------------
 # params and configurations
 
-model_seed = 0
-NB_FINAL_CLASSES = 277
+# model_seed = 0
+# NB_FINAL_CLASSES = 277
 
 # model_seed = 1
 # NB_FINAL_CLASSES = 279
@@ -81,8 +81,8 @@ NB_FINAL_CLASSES = 277
 # model_seed = 3
 # NB_FINAL_CLASSES = 277
 
-# model_seed = 4
-# NB_FINAL_CLASSES = 276
+model_seed = 4
+NB_FINAL_CLASSES = 276
 
 WEIBULL_TAIL_SIZE = 1000
 

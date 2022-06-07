@@ -8,11 +8,24 @@ import pickle
 
 
 
-seed = 0
+# seed = 0
+# nb_final_class = 277
+
+# seed = 1
+# nb_final_class = 279
+
+# seed = 2
+# nb_final_class = 276
+
+# seed = 3
+# nb_final_class = 277
+
+seed = 4
+nb_final_class = 276
+
+
 nb_class = 293
-nb_final_class = 277
-tail_size = [20]
-# tail_size = [20, 50, 100, 500, 1000]
+tail_size = [50]
 
 result_path = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/" \
               "models/msd_net/2022-02-13/known_only_cross_entropy/" \
@@ -21,7 +34,26 @@ result_path = "/afs/crc.nd.edu/user/j/jhuang24/scratch_50/jhuang24/" \
 
 
 
-def get_results(npy_file,
+def calculate_mcc(true_pos,
+                  true_neg,
+                  false_pos,
+                  false_neg):
+    """
+
+    :param true_pos:
+    :param true_neg:
+    :param false_pos:
+    :param false_negtive:
+    :return:
+    """
+
+    return (true_neg*true_pos-false_pos*false_neg)/np.sqrt((true_pos+false_pos)*(true_pos+false_neg)*
+                                                           (true_neg+false_pos)*(true_neg+false_neg))
+
+
+
+def get_results(known_npy_file,
+                unknown_npy_file,
                 nb_class,
                 label_map,
                 nb_final_class):
@@ -38,7 +70,7 @@ def get_results(npy_file,
     false_positive = 0
     false_negative = 0
 
-    for one_result in npy_file:
+    for one_result in known_npy_file:
         try:
             original_label = one_result[0]
 
@@ -50,9 +82,9 @@ def get_results(npy_file,
                 unknown: 294 (293 is known unknown and is not used)
             
             mapped label:
-                    
-            
+                           
             """
+
             if original_label != nb_class+1:
                 label = label_map[str(original_label).zfill(4)]
             else:
@@ -61,17 +93,11 @@ def get_results(npy_file,
             openmax_pred = one_result[2]
 
             # Get the 4 metrics
-            if (label != nb_final_class) and (openmax_pred != nb_final_class):
+            if (openmax_pred != nb_final_class):
                 true_positive += 1
 
-            if (label != nb_final_class) and (openmax_pred == nb_final_class):
+            if (openmax_pred == nb_final_class):
                 false_negative += 1
-
-            if (label == nb_final_class) and (openmax_pred == nb_final_class):
-                true_negative += 1
-
-            if (label == nb_final_class) and (openmax_pred != nb_final_class):
-                false_positive += 1
 
             # Get the normal accuracy (top-1)
             if openmax_pred == label:
@@ -82,22 +108,32 @@ def get_results(npy_file,
         except:
             pass
 
+    for one_result in unknown_npy_file:
+        openmax_pred = one_result[2]
+
+        if openmax_pred == nb_final_class:
+            true_negative += 1
+        else:
+            false_positive += 1
+
     print("True positive: ", true_positive)
     print("True negative: ", true_negative)
     print("False postive: ", false_positive)
     print("False negative: ", false_negative)
 
     accuracy = float(correct)/float(correct+wrong)
+    precision = float(true_positive)/float(true_positive+false_positive)
+    recall = float(true_positive)/float(true_positive+false_negative)
+    f1 = (2*precision*recall)/(precision+recall)
+    mcc = calculate_mcc(true_pos=float(true_positive),
+                        true_neg=float(true_negative),
+                        false_pos=float(false_positive),
+                        false_neg=float(false_negative))
+
     print("Accuracy: ", accuracy)
+    print("F-1: ", f1)
+    print("MCC: ", mcc)
 
-    try:
-        precision = float(true_positive)/float(true_positive+false_positive)
-        recall = float(true_positive)/float(true_positive+false_negative)
-        f1 = (2*precision*recall)/(precision+recall)
-        print("F-1: ", f1)
-
-    except:
-        pass
 
 
 
@@ -107,6 +143,9 @@ if __name__ == "__main__":
         label_mapping = pickle.load(f)
 
     for one_tail_size in tail_size:
+
+        print("*" * 40)
+        print("tail size: ", one_tail_size)
 
         train_result_path = result_path + "train_results_tail_size_" + str(one_tail_size) + ".npy"
         valid_result_path = result_path + "valid_results_tail_size_" + str(one_tail_size) + ".npy"
@@ -118,30 +157,8 @@ if __name__ == "__main__":
         test_known_result = np.load(test_known_result_path)
         test_unknown_result = np.load(test_unknown_result_path)
 
-        print("*" * 50)
-        print("Training")
-        get_results(npy_file=train_result,
-                    nb_class=nb_class,
-                    label_map=label_mapping,
-                    nb_final_class=nb_final_class)
-
-        print("*" * 50)
-        print("validation")
-        get_results(npy_file=valid_result,
-                    nb_class=nb_class,
-                    label_map=label_mapping,
-                    nb_final_class=nb_final_class)
-
-        print("*" * 50)
-        print("test known")
-        get_results(npy_file=test_known_result,
-                    nb_class=nb_class,
-                    label_map=label_mapping,
-                    nb_final_class=nb_final_class)
-
-        print("*" * 50)
-        print("test unknown")
-        get_results(npy_file=test_unknown_result,
+        get_results(known_npy_file=test_known_result,
+                    unknown_npy_file=test_unknown_result,
                     nb_class=nb_class,
                     label_map=label_mapping,
                     nb_final_class=nb_final_class)
